@@ -9,7 +9,7 @@ import "google/protobuf/wrappers.proto";
 package proto;
 
 
-message EmptyResponse {
+message VoidResponse {
 	oneof either {
 		google.protobuf.Empty void = 1;
 		proto.ErrorValue error = 2;

@@ -15,9 +15,9 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import proto.EmptyResponse;
 import proto.ErrorValue;
 import proto.ErrorValue.Code;
+import proto.VoidResponse;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
 import utils.CSV;
@@ -30,11 +30,11 @@ import utils.func.CheckedRunnable;
  */
 public class PBUtils {
 	public static final Empty VOID = Empty.newBuilder().build();
-	public static final EmptyResponse VOID_RESPONSE = EmptyResponse.newBuilder()
+	public static final VoidResponse VOID_RESPONSE = VoidResponse.newBuilder()
 																	.setVoid(VOID)
 																	.build();
 	
-	public static void handle(EmptyResponse resp) {
+	public static void handle(VoidResponse resp) {
 		switch ( resp.getEitherCase() ) {
 			case VOID:
 				return;
@@ -45,13 +45,13 @@ public class PBUtils {
 		}
 	}
 	
-	public static void replyVoid(CheckedRunnable runnable, StreamObserver<EmptyResponse> response) {
+	public static void replyVoid(CheckedRunnable runnable, StreamObserver<VoidResponse> response) {
 		try {
 			runnable.run();
 			response.onNext(VOID_RESPONSE);
 		}
 		catch ( Throwable e ) {
-			response.onNext(EmptyResponse.newBuilder()
+			response.onNext(VoidResponse.newBuilder()
 										.setError(PBUtils.ERROR(e))
 										.build());
 		}
@@ -148,6 +148,10 @@ public class PBUtils {
 			default:
 				return new RuntimeException(error.getDetails());
 		}
+	}
+	
+	public static VoidResponse ERROR_RESPONSE(ErrorValue error) {
+		return VoidResponse.newBuilder().setError(error).build();
 	}
 
 	public static boolean isCancelled(ErrorValue error) {
