@@ -1,0 +1,6 @@
+rootProject.name = 'utils.grpc'
+
+['utils'].each {
+	include ":$it"
+	project(":$it").projectDir = file("../$it")
+}
