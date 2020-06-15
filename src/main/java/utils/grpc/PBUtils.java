@@ -14,9 +14,9 @@ import com.google.protobuf.StringValue;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
+import proto.ErrorValue;
+import proto.ErrorValue.Code;
 import proto.stream.DownMessage;
-import proto.stream.ErrorValue;
-import proto.stream.ErrorValue.Code;
 import proto.stream.UpMessage;
 import utils.CSV;
 

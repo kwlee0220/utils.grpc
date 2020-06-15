@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto";
+
+package proto;
+
+
+message ErrorValue {
+	enum Code {
+		INVALID_ARGUMENT = 0;
+		INVALID_STATE = 1;
+		NOT_FOUND = 2;
+		ALREADY_EXISTS = 3;
+		CANCELLED = 4;
+		TIMEOUT = 5;
+		IO_ERROR = 6;
+		GRPC_STATUS = 98;
+		INTERNAL = 99;
+	}
+	
+	Code code = 1;
+	string details = 2;
+}

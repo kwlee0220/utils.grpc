@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
+import proto.ErrorValue;
+import proto.ErrorValue.Code;
 import proto.stream.DownMessage;
-import proto.stream.ErrorValue;
-import proto.stream.ErrorValue.Code;
 import proto.stream.UpMessage;
 import utils.Utilities;
 import utils.async.EventDrivenExecution;

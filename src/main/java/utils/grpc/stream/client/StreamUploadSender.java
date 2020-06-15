@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
+import proto.ErrorValue.Code;
 import proto.stream.DownMessage;
-import proto.stream.ErrorValue.Code;
 import proto.stream.UpMessage;
 import utils.Throwables;
 import utils.UnitUtils;

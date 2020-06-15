@@ -5,25 +5,9 @@ option java_package = "proto.stream";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
+import "base.proto";
 
 package proto.stream;
-
-message ErrorValue {
-	enum Code {
-		INVALID_ARGUMENT = 0;
-		INVALID_STATE = 1;
-		NOT_FOUND = 2;
-		ALREADY_EXISTS = 3;
-		CANCELLED = 4;
-		TIMEOUT = 5;
-		IO_ERROR = 6;
-		GRPC_STATUS = 98;
-		INTERNAL = 99;
-	}
-	
-	Code code = 1;
-	string details = 2;
-}
 
 message UpMessage {
 	oneof either {	
