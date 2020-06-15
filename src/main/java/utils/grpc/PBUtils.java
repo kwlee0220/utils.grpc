@@ -14,11 +14,15 @@ import com.google.protobuf.StringValue;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import proto.EmptyResponse;
 import proto.ErrorValue;
 import proto.ErrorValue.Code;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
 import utils.CSV;
+import utils.Throwables;
+import utils.func.CheckedRunnable;
 
 /**
  * 
@@ -26,6 +30,33 @@ import utils.CSV;
  */
 public class PBUtils {
 	public static final Empty VOID = Empty.newBuilder().build();
+	public static final EmptyResponse VOID_RESPONSE = EmptyResponse.newBuilder()
+																	.setVoid(VOID)
+																	.build();
+	
+	public static void handle(EmptyResponse resp) {
+		switch ( resp.getEitherCase() ) {
+			case VOID:
+				return;
+			case ERROR:
+				throw Throwables.toRuntimeException(PBUtils.toException(resp.getError()));
+			default:
+				throw new AssertionError();
+		}
+	}
+	
+	public static void replyVoid(CheckedRunnable runnable, StreamObserver<EmptyResponse> response) {
+		try {
+			runnable.run();
+			response.onNext(VOID_RESPONSE);
+		}
+		catch ( Throwable e ) {
+			response.onNext(EmptyResponse.newBuilder()
+										.setError(PBUtils.ERROR(e))
+										.build());
+		}
+		response.onCompleted();
+	}
 	
 	public static StringValue STRING(String str) {
 		return StringValue.newBuilder().setValue(str).build();

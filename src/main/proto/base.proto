@@ -3,8 +3,18 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "proto";
 
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
 package proto;
 
+
+message EmptyResponse {
+	oneof either {
+		google.protobuf.Empty void = 1;
+		proto.ErrorValue error = 2;
+	}
+}
 
 message ErrorValue {
 	enum Code {
