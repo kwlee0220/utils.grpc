@@ -19,8 +19,8 @@ import utils.async.AbstractThreadedExecution;
 import utils.async.Guard;
 import utils.async.Result;
 import utils.grpc.PBUtils;
-import utils.grpc.stream.StreamClosedException;
-import utils.grpc.stream.SuppliableInputStream;
+import utils.io.StreamClosedException;
+import utils.io.SuppliableInputStream;
 
 
 /**
