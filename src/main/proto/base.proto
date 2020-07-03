@@ -3,20 +3,9 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "proto";
 
-import "google/protobuf/empty.proto";
-import "google/protobuf/wrappers.proto";
-
 package proto;
 
-
-message VoidResponse {
-	oneof either {
-		google.protobuf.Empty void = 1;
-		proto.ErrorValue error = 2;
-	}
-}
-
-message ErrorValue {
+message ErrorProto {
 	enum Code {
 		INVALID_ARGUMENT = 0;
 		INVALID_STATE = 1;
@@ -31,4 +20,24 @@ message ErrorValue {
 	
 	Code code = 1;
 	string details = 2;
+}
+
+message VoidProto { }
+message VoidResponse {
+	oneof either {
+		VoidProto value = 1;
+		ErrorProto error = 2;
+	}
+}
+
+message BoolProto { bool value = 1; }
+message Int32Proto { int32 value = 1; }
+message Int64Proto { int64 value = 1; }
+
+message StringProto { string value = 1; }
+message StringResponse {
+	oneof either {
+		StringProto value = 1;
+		ErrorProto error = 2;
+	}
 }

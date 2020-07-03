@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
-import proto.ErrorValue;
-import proto.ErrorValue.Code;
+import proto.ErrorProto;
+import proto.ErrorProto.Code;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
 import utils.Utilities;
@@ -156,7 +156,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 		catch ( InterruptedException e ) {
 			m_guard.runAndSignalAll(() -> {
 				if ( m_state == State.DOWNLOADING ) {
-					ErrorValue error = PBUtils.ERROR(Code.INTERNAL, "downloader worker was interrupted");
+					ErrorProto error = PBUtils.ERROR(Code.INTERNAL, "downloader worker was interrupted");
 					m_channel.onNext(UpMessage.newBuilder().setError(error).build());
 					m_channel.onCompleted();
 					

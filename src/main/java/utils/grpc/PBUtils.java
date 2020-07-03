@@ -6,17 +6,18 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Empty;
-import com.google.protobuf.Int64Value;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.StringValue;
 
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import proto.ErrorValue;
-import proto.ErrorValue.Code;
+import proto.ErrorProto;
+import proto.ErrorProto.Code;
+import proto.Int64Proto;
+import proto.StringProto;
+import proto.StringResponse;
+import proto.VoidProto;
 import proto.VoidResponse;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
@@ -29,62 +30,76 @@ import utils.func.CheckedRunnable;
  * @author Kang-Woo Lee (ETRI)
  */
 public class PBUtils {
-	public static final Empty VOID = Empty.newBuilder().build();
-	public static final VoidResponse VOID_RESPONSE = VoidResponse.newBuilder()
-																	.setVoid(VOID)
-																	.build();
+	private static VoidProto s_void = null;
+	public static VoidProto VOID() {
+		if ( s_void == null ) {
+			s_void = VoidProto.newBuilder().build();
+		}
+		
+		return s_void;
+	}
 	
+	private static VoidResponse s_voidResponse = null;
+	public static VoidResponse VOID_RESPONSE() {
+		if ( s_voidResponse == null ) {
+			s_voidResponse = VoidResponse.newBuilder().setValue(VOID()).build();
+		}
+		return s_voidResponse;
+	}
+	public static VoidResponse VOID_RESPONSE(ErrorProto error) {
+		return VoidResponse.newBuilder().setError(error).build();
+	}
+	public static VoidResponse VOID_RESPONSE(Throwable e) {
+		return VoidResponse.newBuilder().setError(ERROR(e)).build();
+	}
 	public static void handle(VoidResponse resp) {
 		switch ( resp.getEitherCase() ) {
-			case VOID:
+			case VALUE:
 				return;
 			case ERROR:
-				throw Throwables.toRuntimeException(PBUtils.toException(resp.getError()));
+				throw Throwables.toRuntimeException(toException(resp.getError()));
 			default:
 				throw new AssertionError();
 		}
 	}
 	
-	public static void replyVoid(CheckedRunnable runnable, StreamObserver<VoidResponse> response) {
-		try {
-			runnable.run();
-			response.onNext(VOID_RESPONSE);
-		}
-		catch ( Throwable e ) {
-			response.onNext(VoidResponse.newBuilder()
-										.setError(PBUtils.ERROR(e))
-										.build());
-		}
-		response.onCompleted();
-	}
-	
-	public static StringValue STRING(String str) {
-		return StringValue.newBuilder().setValue(str).build();
+	public static StringProto STRING(String str) {
+		return StringProto.newBuilder().setValue(str).build();
 	}
 	public static String STRING(ByteString bstr) throws InvalidProtocolBufferException {
-		return StringValue.parseFrom(bstr).getValue();
+		return StringProto.parseFrom(bstr).getValue();
+	}
+	public static StringResponse STRING_RESPONSE(String value) {
+		return StringResponse.newBuilder()
+							.setValue(STRING(value))
+							.build();
+	}
+	public static StringResponse STRING_RESPONSE(Throwable e) {
+		return StringResponse.newBuilder()
+							.setError(ERROR(e))
+							.build();
 	}
 	
 	public static ByteString BYTE_STRING(String str) {
-		return StringValue.newBuilder().setValue(str).build().toByteString();
+		return StringProto.newBuilder().setValue(str).build().toByteString();
 	}
 	public static ByteString BYTE_STRING(long value) {
-		return Int64Value.newBuilder().setValue(value).build().toByteString();
+		return Int64Proto.newBuilder().setValue(value).build().toByteString();
 	}
 	
-	public static Int64Value INT64(long value) {
-		return Int64Value.newBuilder().setValue(value).build();
+	public static Int64Proto INT64(long value) {
+		return Int64Proto.newBuilder().setValue(value).build();
 	}
 	
-	public static ErrorValue ERROR(Code code, String details) {
+	public static ErrorProto ERROR(Code code, String details) {
 		if ( details == null ) {
 			details = "";
 		}
 		
-		return ErrorValue.newBuilder().setCode(code).setDetails(details).build();
+		return ErrorProto.newBuilder().setCode(code).setDetails(details).build();
 	}
 	
-	public static ErrorValue ERROR(Throwable e) {
+	public static ErrorProto ERROR(Throwable e) {
 		if ( e instanceof CancellationException ) {
 			return ERROR(Code.CANCELLED, e.getMessage());
 		}
@@ -122,7 +137,7 @@ public class PBUtils {
 		}
 	}
 	
-	public static Exception toException(ErrorValue error) {
+	public static Exception toException(ErrorProto error) {
 		switch ( error.getCode() ) {
 			case CANCELLED:
 				return new CancellationException(error.getDetails());
@@ -149,13 +164,20 @@ public class PBUtils {
 				return new RuntimeException(error.getDetails());
 		}
 	}
-	
-	public static VoidResponse ERROR_RESPONSE(ErrorValue error) {
-		return VoidResponse.newBuilder().setError(error).build();
-	}
 
-	public static boolean isCancelled(ErrorValue error) {
-		return error.getCode() == ErrorValue.Code.CANCELLED;
+	public static boolean isCancelled(ErrorProto error) {
+		return error.getCode() == ErrorProto.Code.CANCELLED;
+	}
+	
+	public static void replyVoid(CheckedRunnable runnable, StreamObserver<VoidResponse> response) {
+		try {
+			runnable.run();
+			response.onNext(VOID_RESPONSE());
+		}
+		catch ( Throwable e ) {
+			response.onNext(VOID_RESPONSE(e));
+		}
+		response.onCompleted();
 	}
 	
 //	public static Status getStatus(Throwable e) {
@@ -204,8 +226,12 @@ public class PBUtils {
 //		return DownMessage.newBuilder().setError(ERROR(error)).build();
 //	}
 	
-	public static final DownMessage EMPTY_DOWN_MESSAGE = DownMessage.newBuilder().setDummy(VOID).build();
-	public static final UpMessage EMPTY_UP_MESSAGE = UpMessage.newBuilder().setDummy(VOID).build();
+	public static final DownMessage EMPTY_DOWN_MESSAGE = DownMessage.newBuilder()
+																	.setDummy(VOID())
+																	.build();
+	public static final UpMessage EMPTY_UP_MESSAGE = UpMessage.newBuilder()
+																.setDummy(VOID())
+																.build();
 	
 /*
 	public static final SerializedProto serialize(Object obj) {
@@ -352,29 +378,9 @@ public class PBUtils {
 			throw new PBException("fails to get the field " + field, e);
 		}
 	}
-	
-	public static VoidResponse toVoidResponse() {
-		return VOID_RESPONSE;
-	}
-	
-	public static VoidResponse toVoidResponse(Throwable e) {
-		return VoidResponse.newBuilder()
-							.setError(toErrorProto(e))
-							.build();
-	}
-	
-	public static StringResponse toStringResponse(Throwable e) {
-		return StringResponse.newBuilder()
-							.setError(toErrorProto(e))
-							.build();
-	}
-	
-	public static StringResponse toStringResponse(String value) {
-		return StringResponse.newBuilder()
-							.setValue(value)
-							.build();
-	}
-	
+*/
+
+/*
 	public static String getValue(StringResponse resp) {
 		switch ( resp.getEitherCase() ) {
 			case VALUE:

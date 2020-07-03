@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
-import proto.ErrorValue.Code;
+import proto.ErrorProto.Code;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
 import utils.Throwables;
@@ -97,7 +97,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 
 					if ( chunk.isEmpty() ) {
 						s_logger.trace("send END_OF_STREAM");
-						UpMessage eos = UpMessage.newBuilder().setEos(PBUtils.VOID).build();
+						UpMessage eos = UpMessage.newBuilder().setEos(PBUtils.VOID()).build();
 						m_channel.onNext(eos);
 						
 						m_state = State.END_OF_STREAM;

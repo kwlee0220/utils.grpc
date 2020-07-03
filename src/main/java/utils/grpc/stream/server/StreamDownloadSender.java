@@ -146,7 +146,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 					
 					if ( block.isEmpty() ) {
 						s_logger.trace("send END_OF_STREAM");
-						DownMessage eos = DownMessage.newBuilder().setEos(PBUtils.VOID).build();
+						DownMessage eos = DownMessage.newBuilder().setEos(PBUtils.VOID()).build();
 						m_channel.onNext(eos);
 
 						s_logger.debug("COMPLETED");

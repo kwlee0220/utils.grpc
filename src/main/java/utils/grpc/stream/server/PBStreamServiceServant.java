@@ -154,7 +154,7 @@ public class PBStreamServiceServant extends StreamServiceImplBase {
 				downloader.setInputStream(is);
 				downloader.run();
 				
-				return PBUtils.VOID.toByteString();
+				return PBUtils.VOID().toByteString();
 			}
 		};
 		

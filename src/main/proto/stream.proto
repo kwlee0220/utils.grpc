@@ -3,8 +3,6 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "proto.stream";
 
-import "google/protobuf/empty.proto";
-import "google/protobuf/wrappers.proto";
 import "base.proto";
 
 package proto.stream;
@@ -13,18 +11,18 @@ message UpMessage {
 	oneof either {	
 		bytes header = 1;
 		bytes block = 2;
-		ErrorValue error = 3;
-		google.protobuf.Empty eos = 4;
-		google.protobuf.Empty dummy = 5;
+		ErrorProto error = 3;
+		VoidProto eos = 4;
+		VoidProto dummy = 5;
 	}
 }
 message DownMessage {
 	oneof either {
 		bytes result = 1;
 		bytes block = 2;
-		ErrorValue error = 3;
-		google.protobuf.Empty eos = 4;
-		google.protobuf.Empty dummy = 5;
+		ErrorProto error = 3;
+		VoidProto eos = 4;
+		VoidProto dummy = 5;
 	}
 }
 
