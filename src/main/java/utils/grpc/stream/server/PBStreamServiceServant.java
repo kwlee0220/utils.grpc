@@ -21,6 +21,7 @@ import proto.stream.MultiChannelUpMessage;
 import proto.stream.StreamServiceGrpc.StreamServiceImplBase;
 import proto.stream.UpMessage;
 import proto.stream.UploadServerCancelTest;
+import utils.UnitUtils;
 import utils.grpc.PBUtils;
 import utils.grpc.stream.DownMessageChannel;
 import utils.io.IOUtils;
@@ -98,6 +99,8 @@ public class PBStreamServiceServant extends StreamServiceImplBase {
 			}
 		}
 	}
+	
+	private static final int BUFFER_SIZE = (int)UnitUtils.parseByteSize("4mb");
 
 	@Override
     public StreamObserver<UpMessage> upload(StreamObserver<DownMessage> channel) {
@@ -109,7 +112,7 @@ public class PBStreamServiceServant extends StreamServiceImplBase {
 
 				s_logger.debug("[sample] uploading: path={}...", path);
 				
-				long count = IOUtils.toFile(is, file);
+				long count = IOUtils.toFile(is, file, BUFFER_SIZE);
 				System.out.println("length=" + count);
 				return PBUtils.INT64(count).toByteString();
 			}

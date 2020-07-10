@@ -30,7 +30,6 @@ message VoidResponse {
 	}
 }
 
-message BoolProto { bool value = 1; }
 message Int32Proto { int32 value = 1; }
 message Int64Proto { int64 value = 1; }
 
@@ -38,6 +37,14 @@ message StringProto { string value = 1; }
 message StringResponse {
 	oneof either {
 		StringProto value = 1;
+		ErrorProto error = 2;
+	}
+}
+
+message BoolProto { bool value = 1; }
+message BoolResponse {
+	oneof either {
+		BoolProto value = 1;
 		ErrorProto error = 2;
 	}
 }

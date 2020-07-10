@@ -1,14 +1,12 @@
 package utils.grpc.stream;
 
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.LogManager;
 
 import org.apache.log4j.PropertyConfigurator;
 
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
-import io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2Exception.StreamException;
 import utils.NetUtils;
 import utils.grpc.stream.server.PBStreamServiceServant;
 

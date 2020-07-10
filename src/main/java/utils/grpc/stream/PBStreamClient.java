@@ -10,6 +10,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import utils.grpc.stream.client.PBStreamServiceProxy;
+import utils.grpc.stream.client.StreamUploadOutputStream;
 
 /**
  * 
@@ -64,5 +65,9 @@ public class PBStreamClient {
 
 	public long upload(String path, InputStream stream) throws IOException {
 		return m_service.upload(path, stream);
+	}
+
+	public StreamUploadOutputStream openUploadOutputStream(String path) {
+		return m_service.openUploadOutputStream(path);
 	}
 }

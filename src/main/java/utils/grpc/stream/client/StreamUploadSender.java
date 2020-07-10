@@ -61,7 +61,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 		m_stream = stream;
 	}
 	
-	void setChannel(StreamObserver<UpMessage> channel) {
+	public void setChannel(StreamObserver<UpMessage> channel) {
 		Utilities.checkNotNullArgument(channel, "Upload stream channel");
 
 		m_channel = channel;

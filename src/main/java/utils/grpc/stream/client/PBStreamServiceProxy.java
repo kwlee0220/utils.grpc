@@ -2,6 +2,7 @@ package utils.grpc.stream.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Int64Value;
@@ -51,6 +52,13 @@ public class PBStreamServiceProxy {
 			Throwables.sneakyThrow(cause);
 			return 1;
 		}
+	}
+	
+	public StreamUploadOutputStream openUploadOutputStream(String path) {
+		StreamUploadOutputStream suos = new StreamUploadOutputStream(PBUtils.BYTE_STRING(path));
+		suos.setOutgoingChannel(m_stub.upload(suos));
+		
+		return suos;
 	}
 
 	public InputStream upAndDownload(String path, InputStream is) {

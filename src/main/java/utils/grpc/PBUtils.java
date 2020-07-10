@@ -12,6 +12,8 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import proto.BoolProto;
+import proto.BoolResponse;
 import proto.ErrorProto;
 import proto.ErrorProto.Code;
 import proto.Int64Proto;
@@ -78,6 +80,40 @@ public class PBUtils {
 		return StringResponse.newBuilder()
 							.setError(ERROR(e))
 							.build();
+	}
+	public static String handle(StringResponse resp) {
+		switch ( resp.getEitherCase() ) {
+			case VALUE:
+				return resp.getValue().getValue();
+			case ERROR:
+				throw Throwables.toRuntimeException(toException(resp.getError()));
+			default:
+				throw new AssertionError();
+		}
+	}
+	
+	public static BoolProto BOOL(boolean value) {
+		return BoolProto.newBuilder().setValue(value).build();
+	}
+	public static BoolResponse BOOL_RESPONSE(boolean value) {
+		return BoolResponse.newBuilder()
+							.setValue(BOOL(value))
+							.build();
+	}
+	public static BoolResponse BOOL_RESPONSE(Throwable e) {
+		return BoolResponse.newBuilder()
+							.setError(ERROR(e))
+							.build();
+	}
+	public static boolean handle(BoolResponse resp) {
+		switch ( resp.getEitherCase() ) {
+			case VALUE:
+				return resp.getValue().getValue();
+			case ERROR:
+				throw Throwables.toRuntimeException(toException(resp.getError()));
+			default:
+				throw new AssertionError();
+		}
 	}
 	
 	public static ByteString BYTE_STRING(String str) {
@@ -446,8 +482,7 @@ public class PBUtils {
 
 	public static <T extends Message> FStream<T> toFStream(Iterator<T> respIter) {
 		if ( !respIter.hasNext() ) {
-			// Iterator가 empty인 경우는 예외가 발생하지 않았고, 결과가 없는 경우를
-			// 의미하기 때문에 empty FStream을 반환한다.
+			// Iterator가 empty??경우???�외가 발생?��? ?�았�? 결과가 ?�는 경우�?			// ?��??�기 ?�문??empty FStream??반환?�다.
 			return FStream.empty();
 		}
 		
