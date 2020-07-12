@@ -14,6 +14,7 @@ message UpMessage {
 		ErrorProto error = 3;
 		VoidProto eos = 4;
 		VoidProto dummy = 5;
+		uint64 offset = 6;
 	}
 }
 message DownMessage {
@@ -23,6 +24,7 @@ message DownMessage {
 		ErrorProto error = 3;
 		VoidProto eos = 4;
 		VoidProto dummy = 5;
+		uint64 offset = 6;
 	}
 }
 

@@ -14,6 +14,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
+import utils.UnitUtils;
 import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
 import utils.async.Guard;
@@ -29,6 +30,7 @@ import utils.io.SuppliableInputStream;
  */
 public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> {
 	private static final Logger s_logger = LoggerFactory.getLogger(StreamUploadReceiver.class);
+	private static final long SYNC_INTERVAL = UnitUtils.parseByteSize("4mb");
 
 	private final SuppliableInputStream m_stream;
 	private final StreamObserver<DownMessage> m_channel;
@@ -36,6 +38,8 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 	private final Guard m_guard = Guard.create();
 	@GuardedBy("m_guard") private State m_state = State.NOT_STARTED;
 	@GuardedBy("m_guard") private volatile UploadedStreamProcessor m_streamConsumer = null;
+	@GuardedBy("m_guard") private long m_nreceived = 0;
+	@GuardedBy("m_guard") private long m_lastSync = 0;
 	
 	private static enum State {
 		NOT_STARTED,
@@ -126,6 +130,14 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 		try {
 			if ( m_state == State.UPLOADING ) {
 				m_stream.supply(chunk.asReadOnlyByteBuffer());
+				
+				m_nreceived += chunk.size();
+				long sync = m_nreceived / SYNC_INTERVAL;
+				if ( sync != m_lastSync ) {
+					m_channel.onNext(DownMessage.newBuilder().setOffset(m_nreceived).build());
+					m_lastSync = sync;
+					System.out.println(m_nreceived);
+				}
 			}
 			else {
 				s_logger.trace("late stream block: state=" + m_state);

@@ -44,6 +44,8 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 	@GuardedBy("m_guard") private State m_state = State.NOT_STARTED;
 	@GuardedBy("m_guard") private ByteString m_result = null;
 	@GuardedBy("m_guard") private Exception m_cause = null;
+	@GuardedBy("m_guard") private long m_head = 0;
+	@GuardedBy("m_guard") private long m_tail = 0;
 	
 	private static enum State {
 		NOT_STARTED,
@@ -109,6 +111,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 						s_logger.trace("send CHUNK[idx={}, size={}]", chunkCount, chunk.size());
 						UpMessage block = UpMessage.newBuilder().setBlock(chunk).build();
 						m_channel.onNext(block);
+						m_head += chunk.size();
 					}
 					Thread.sleep(30);
 				}
@@ -177,6 +180,10 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 				s_logger.trace("received RESULT: {}", result);
 				m_guard.runAndSignalAll(() -> m_result = result);
 				break;
+			case OFFSET:
+				m_tail = resp.getOffset();
+				String gapStr = UnitUtils.toByteSizeString(m_head-m_tail);
+				System.out.printf("%d - %d = %s%n", m_head, m_tail, gapStr);
 			case ERROR:
 				handleRemoteException(PBUtils.toException(resp.getError()));
 				break;

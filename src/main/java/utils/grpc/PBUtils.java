@@ -482,7 +482,6 @@ public class PBUtils {
 
 	public static <T extends Message> FStream<T> toFStream(Iterator<T> respIter) {
 		if ( !respIter.hasNext() ) {
-			// Iteratorê°€ empty??ê²½ìš°???ˆì™¸ê°€ ë°œìƒ?˜ì? ?Šì•˜ê³? ê²°ê³¼ê°€ ?†ëŠ” ê²½ìš°ë¥?			// ?˜ë??˜ê¸° ?Œë¬¸??empty FStream??ë°˜í™˜?œë‹¤.
 			return FStream.empty();
 		}
 		
