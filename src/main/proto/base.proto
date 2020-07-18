@@ -31,7 +31,20 @@ message VoidResponse {
 }
 
 message Int32Proto { int32 value = 1; }
+message Int32Response {
+	oneof either {
+		int32 value = 1;
+		ErrorProto error = 2;
+	}
+}
+
 message Int64Proto { int64 value = 1; }
+message Int64Response {
+	oneof either {
+		int64 value = 1;
+		ErrorProto error = 2;
+	}
+}
 
 message StringProto { string value = 1; }
 message StringResponse {
