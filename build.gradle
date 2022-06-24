@@ -45,12 +45,15 @@ sourceSets {
 	}
 }
 
-ext.grpc_version = '1.23.0'
-ext.protobuf_version = '3.9.1'
-
-ext.junit_version = '4.12'
-ext.mockito_version = '3.2.4'
-ext.hamcrest_version = '1.3'
+ext {
+	log4j_version = '1.2.17'
+	grpc_version = '1.23.0'
+	protobuf_version = '3.9.1'
+	
+	junit_version = '4.12'
+	mockito_version = '3.2.4'
+	hamcrest_version = '1.3'
+}
 
 repositories {
 	mavenCentral()
@@ -58,6 +61,8 @@ repositories {
 
 dependencies {
 	compile project(":utils")
+	
+	api "log4j:log4j:${log4j_version}"
 	
 	// grpc
 	implementation "io.grpc:grpc-netty-shaded:${grpc_version}"
@@ -133,7 +138,12 @@ eclipse {
 				}
 				cp.entries.each { entry ->
 					if ( entry.kind == 'src' && entry.hasProperty('output') ) {
-						entry.output = 'classes'
+						if ( entry.path.startsWith("src/test/") ) {
+							entry.output = 'test_classes'
+						}
+						else {
+							entry.output = 'classes'
+						}
 					}
 				}
 			}
