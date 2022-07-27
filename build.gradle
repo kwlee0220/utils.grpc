@@ -46,7 +46,6 @@ sourceSets {
 }
 
 ext {
-	log4j_version = '1.2.17'
 	javax_annotation_version = '1.3.2'
 	grpc_version = '1.23.0'
 	protobuf_version = '3.9.1'
@@ -62,10 +61,6 @@ repositories {
 
 dependencies {
 	compile project(":utils")
-	
-//	api "log4j:log4j:${log4j_version}"
-	
-	
 	
 	// grpc
 	implementation "javax.annotation:javax.annotation-api:${javax_annotation_version}"
