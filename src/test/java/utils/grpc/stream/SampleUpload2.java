@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.apache.log4j.PropertyConfigurator;
-
 import com.google.protobuf.ByteString;
 
-import proto.Int64Proto;
 import utils.StopWatch;
 import utils.grpc.stream.client.PBStreamServiceProxy;
 import utils.grpc.stream.client.StreamUploadOutputStream;
 import utils.io.IOUtils;
+
+import proto.Int64Proto;
 
 /**
  * 
@@ -26,9 +25,6 @@ public class SampleUpload2 {
 	private static final String OUTPUT = "/home/kwlee/tmp/copy";
 			
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-//		LogManager.getRootLogger().setLevel(Level.OFF);
-		
 		PBStreamClient client = PBStreamClient.connect("localhost", 15685);
 		PBStreamServiceProxy proxy = client.getStreamService();
 		

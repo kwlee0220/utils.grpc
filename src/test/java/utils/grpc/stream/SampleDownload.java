@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.apache.log4j.PropertyConfigurator;
-
 import utils.StopWatch;
 import utils.UnitUtils;
 import utils.io.IOUtils;
@@ -23,9 +21,6 @@ public class SampleDownload {
 	private static final String OUTPUT = "/home/kwlee/tmp/copy";
 			
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-//		LogManager.getRootLogger().setLevel(Level.OFF);
-		
 		PBStreamClient client = PBStreamClient.connect("localhost", 15685);
 
 		for ( String path: Arrays.asList(INPUT, INPUT2, INPUT3) ) {

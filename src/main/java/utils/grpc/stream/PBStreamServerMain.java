@@ -3,12 +3,11 @@ package utils.grpc.stream;
 import java.io.IOException;
 import java.util.logging.LogManager;
 
-import org.apache.log4j.PropertyConfigurator;
+import utils.NetUtils;
+import utils.grpc.stream.server.PBStreamServiceServant;
 
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
-import utils.NetUtils;
-import utils.grpc.stream.server.PBStreamServiceServant;
 
 /**
  * 
@@ -24,9 +23,6 @@ public class PBStreamServerMain {
 	}
 	
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-//		LogManager.getRootLogger().setLevel(Level.OFF);
-		
 		LogManager.getLogManager().reset();
 		
 		int port = ( args.length > 0 ) ? Integer.parseInt(args[0]) : DEFAULT_PORT;

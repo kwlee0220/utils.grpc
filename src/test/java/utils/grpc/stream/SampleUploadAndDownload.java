@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.apache.log4j.PropertyConfigurator;
-
 import utils.grpc.stream.client.PBStreamServiceProxy;
 
 /**
@@ -19,9 +17,6 @@ public class SampleUploadAndDownload {
 	private static final String OUTPUT_CLIENT = "/home/kwlee/tmp/copy_client";
 			
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-//		LogManager.getRootLogger().setLevel(Level.OFF);
-		
 		PBStreamClient client = PBStreamClient.connect("localhost", 15685);
 		PBStreamServiceProxy proxy = client.getStreamService();
 
