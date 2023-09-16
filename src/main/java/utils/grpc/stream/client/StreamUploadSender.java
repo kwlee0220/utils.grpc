@@ -33,7 +33,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 	private static final Logger s_logger = LoggerFactory.getLogger(StreamUploadSender.class);
 	
 	private static final int DEFAULT_CHUNK_SIZE = (int)UnitUtils.parseByteSize("64kb");
-	private static final long DEFAULT_CLOSE_TIMEOUT = UnitUtils.parseDuration("30s");		// 30s
+	private static final long DEFAULT_CLOSE_TIMEOUT = UnitUtils.parseDurationMillis("30s");		// 30s
 	
 	private final ByteString m_header;
 	private final InputStream m_stream;

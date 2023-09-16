@@ -33,7 +33,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 	private static final Logger s_logger = LoggerFactory.getLogger(StreamDownloadSender.class);
 
 	private static final int DEFAULT_CHUNK_SIZE = (int)UnitUtils.parseByteSize("64kb");
-	private static final long DEFAULT_STREAM_ACQUIRE_TIMEOUT = UnitUtils.parseDuration("10s");	// 10 seconds
+	private static final long DEFAULT_STREAM_ACQUIRE_TIMEOUT = UnitUtils.parseDurationMillis("10s");	// 10 seconds
 	
 	private final StreamObserver<DownMessage> m_channel;
 	private long m_streamAcquireTimeout = DEFAULT_STREAM_ACQUIRE_TIMEOUT;
