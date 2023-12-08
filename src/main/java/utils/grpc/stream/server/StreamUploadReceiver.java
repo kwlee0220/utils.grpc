@@ -18,7 +18,7 @@ import utils.UnitUtils;
 import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
 import utils.async.Guard;
-import utils.async.Result;
+import utils.async.AsyncResult;
 import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
 import utils.io.SuppliableInputStream;
@@ -203,7 +203,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 		});
 	}
 	
-	private void onConsumerFinished(Result<ByteString> result) {
+	private void onConsumerFinished(AsyncResult<ByteString> result) {
 		m_guard.runAndSignalAll(() -> {
 			if ( m_state == State.COMPLETED || m_state == State.CANCELLED || m_state == State.FAILED ) {
 				return;	// skip
