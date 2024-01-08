@@ -11,17 +11,18 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.ByteString;
 
-import io.grpc.stub.StreamObserver;
-import proto.stream.DownMessage;
-import proto.stream.UpMessage;
 import utils.UnitUtils;
 import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
 import utils.async.Guard;
-import utils.async.AsyncResult;
+import utils.func.Result;
 import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
 import utils.io.SuppliableInputStream;
+
+import io.grpc.stub.StreamObserver;
+import proto.stream.DownMessage;
+import proto.stream.UpMessage;
 
 
 /**
@@ -114,7 +115,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {
 				m_streamConsumer = new UploadedStreamProcessor(header);
-				m_streamConsumer.whenFinished(this::onConsumerFinished);
+				m_streamConsumer.whenFinishedAsync(this::onConsumerFinished);
 				m_streamConsumer.start();
 				
 				m_state = State.UPLOADING;
@@ -203,13 +204,13 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 		});
 	}
 	
-	private void onConsumerFinished(AsyncResult<ByteString> result) {
+	private void onConsumerFinished(Result<ByteString> result) {
 		m_guard.runAndSignalAll(() -> {
 			if ( m_state == State.COMPLETED || m_state == State.CANCELLED || m_state == State.FAILED ) {
 				return;	// skip
 			}
 			
-			if ( result.isCompleted() ) {
+			if ( result.isSuccessful() ) {
 				s_logger.debug("stream consumer finished: result: {}", result.getUnchecked());
 
 				m_channel.onNext(DownMessage.newBuilder().setResult(result.getUnchecked()).build());
@@ -225,7 +226,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 				m_channel.onCompleted();
 				m_state = State.FAILED;
 			}
-			else if ( result.isCancelled() ) {
+			else if ( result.isNone() ) {
 				s_logger.debug("stream consumer cancelled the operation");
 				
 				m_channel.onNext(DownMessage.newBuilder()
