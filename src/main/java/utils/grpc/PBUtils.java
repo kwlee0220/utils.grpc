@@ -824,7 +824,7 @@ public class PBUtils {
 	
 	public static Map<String,String> fromProto(PropertiesProto proto) {
 		return FStream.from(proto.getPropertyList())
-				.foldLeft(Maps.newHashMap(), (map,kv) -> {
+				.fold(Maps.newHashMap(), (map,kv) -> {
 					map.put(kv.getKey(), kv.getValue());
 					return map;
 				});
@@ -845,7 +845,7 @@ public class PBUtils {
 	public static RecordProto toProto(Record record) {
 		return FStream.of(record.getAll())
 						.map(PBUtils::toValueProto)
-						.foldLeft(RecordProto.newBuilder(), (b,p) -> b.addColumn(p))
+						.fold(RecordProto.newBuilder(), (b,p) -> b.addColumn(p))
 						.build();
 	}
 	
