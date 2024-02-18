@@ -14,8 +14,8 @@ hs_err_pid*
 
 /classes/
 /build/
+/bin/
 /.classpath
 /.project
 /.gradle/
 /.settings/
-/test_classes/
