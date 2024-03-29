@@ -7,7 +7,8 @@ plugins {
 group = 'etri'
 version = '24.01.12'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = '17'
+targetCompatibility = '11'
 [compileJava,compileTestJava]*.options*.encoding = 'UTF-8'
 
 protobuf {
@@ -41,6 +42,7 @@ sourceSets {
 }
 
 ext {
+	logback_version = '1.3.14'
 	javax_annotation_version = '1.3.2'
 	grpc_version = '1.60.1'
 	protobuf_version = '3.25.2'
@@ -56,6 +58,9 @@ repositories {
 
 dependencies {
 	implementation project(":utils")
+	
+	// Logback with SLF4j
+	implementation "ch.qos.logback:logback-classic:${logback_version}"
 	
 	// grpc
 	implementation "io.grpc:grpc-netty-shaded:${grpc_version}"
@@ -82,4 +87,41 @@ task javadocJar(type: Jar) {
 artifacts {
 	archives sourceJar
 	archives javadocJar
+}
+
+eclipse {
+	classpath {
+		file {
+			withXml {
+				def node = it.asNode()
+				node.appendNode('classpathentry', [kind: 'output', path: 'build/classes'])
+			}
+			
+			whenMerged { cp ->
+				Map entryByPath = cp.entries.groupBy { entry -> entry.path }
+				entryByPath.each { key, values ->
+					if ( values.size() > 1 ) {
+            			def entry = values.first()
+            			if ( entry.kind == 'src' ) {
+            				entry.includes = []
+            				entry.excludes = []
+            			}
+            			int index = cp.entries.indexOf entry
+            			cp.entries.removeAll values
+            			cp.entries.add index, entry
+					}
+				}
+				cp.entries.each { entry ->
+					if ( entry.kind == 'src' && entry.hasProperty('output') ) {
+						if ( entry.path.contains('/test/') ) {
+							entry.output = 'build/test_classes'
+						}
+						else {
+							entry.output = 'build/classes'
+						}
+					}
+				}
+			}
+		}
+	}
 }
