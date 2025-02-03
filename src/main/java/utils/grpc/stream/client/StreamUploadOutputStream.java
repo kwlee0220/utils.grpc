@@ -203,7 +203,7 @@ public class StreamUploadOutputStream extends OutputStream implements StreamObse
 					default: throw new AssertionError();
 				}
 				
-				m_guard.await();
+				m_guard.awaitInGuard();
 			}
 		}
 		finally {
@@ -215,7 +215,7 @@ public class StreamUploadOutputStream extends OutputStream implements StreamObse
 		Date due = new Date(System.currentTimeMillis() + DEFAULT_CLOSE_TIMEOUT);
 		try {
 			while ( m_result == null && !(m_state == State.CANCELLED || m_state == State.FAILED) ) {
-				if ( !m_guard.awaitUntil(due) ) {
+				if ( !m_guard.awaitInGuardUntil(due) ) {
 					throw new TimeoutException();
 				}
 			}
@@ -228,7 +228,7 @@ public class StreamUploadOutputStream extends OutputStream implements StreamObse
 			m_cause = new CancellationException();
 			
 			m_state = State.CANCELLED;
-			m_guard.signalAll();
+			m_guard.signalAllInGuard();
 		}
 		catch ( Exception e ) {
 			m_channel.onNext(UpMessage.newBuilder().setError(PBUtils.ERROR(e)).build());
@@ -236,7 +236,7 @@ public class StreamUploadOutputStream extends OutputStream implements StreamObse
 			m_cause = e;
 			
 			m_state = State.FAILED;
-			m_guard.signalAll();
+			m_guard.signalAllInGuard();
 		}
 	}
 

@@ -71,7 +71,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 			if ( m_state == State.NOT_STARTED ) {
 				m_channel = channel;
 				m_state = State.DOWNLOADING;
-				m_guard.signalAll();
+				m_guard.signalAllInGuard();
 				notifyStarted();
 			}
 			else {
@@ -89,7 +89,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 				m_channel = channel;
 				m_channel.onNext(UpMessage.newBuilder().setHeader(req).build());
 				m_state = State.DOWNLOADING;
-				m_guard.signalAll();
+				m_guard.signalAllInGuard();
 				notifyStarted();
 			}
 			else {

@@ -96,7 +96,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 			m_startLatch.countDown();
 			m_stream = stream;
 			m_state = State.DOWNLOADING;
-			m_guard.signalAll();
+			m_guard.signalAllInGuard();
 		}
 		finally {
 			m_guard.unlock();
@@ -153,7 +153,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 						m_channel.onCompleted();
 						
 						m_state = State.COMPLETED;
-						m_guard.signalAll();
+						m_guard.signalAllInGuard();
 						break;
 					}
 					else {

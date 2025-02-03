@@ -80,7 +80,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 				m_channel.onNext(req);
 				
 				m_state = State.UPLOADING;
-				m_guard.signalAll();
+				m_guard.signalAllInGuard();
 			}
 		});
 		
@@ -103,7 +103,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 						m_channel.onNext(eos);
 						
 						m_state = State.END_OF_STREAM;
-						m_guard.signalAll();
+						m_guard.signalAllInGuard();
 						break;
 					}
 					else {
@@ -231,7 +231,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 		Date due = new Date(System.currentTimeMillis() + DEFAULT_CLOSE_TIMEOUT);
 		try {
 			while ( m_result == null && !(m_state == State.CANCELLED || m_state == State.FAILED) ) {
-				if ( !m_guard.awaitUntil(due) ) {
+				if ( !m_guard.awaitInGuardUntil(due) ) {
 					throw new TimeoutException();
 				}
 			}
@@ -244,7 +244,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 			m_cause = new CancellationException();
 			
 			m_state = State.CANCELLED;
-			m_guard.signalAll();
+			m_guard.signalAllInGuard();
 		}
 		catch ( Exception e ) {
 			m_channel.onNext(UpMessage.newBuilder().setError(PBUtils.ERROR(e)).build());
@@ -252,7 +252,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 			m_cause = e;
 			
 			m_state = State.FAILED;
-			m_guard.signalAll();
+			m_guard.signalAllInGuard();
 		}
 	}
 }
