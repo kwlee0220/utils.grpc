@@ -215,7 +215,7 @@ public class StreamUploadOutputStream extends OutputStream implements StreamObse
 		Date due = new Date(System.currentTimeMillis() + DEFAULT_CLOSE_TIMEOUT);
 		try {
 			while ( m_result == null && !(m_state == State.CANCELLED || m_state == State.FAILED) ) {
-				if ( !m_guard.awaitInGuardUntil(due) ) {
+				if ( !m_guard.awaitUntilInGuard(due) ) {
 					throw new TimeoutException();
 				}
 			}
