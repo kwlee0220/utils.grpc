@@ -1,9 +1,11 @@
 package utils.grpc.stream.client;
 
 import io.grpc.stub.StreamObserver;
+
+import utils.grpc.PBUtils;
+
 import proto.stream.DownMessage;
 import proto.stream.MultiChannelDownMessage;
-import utils.grpc.PBUtils;
 
 /**
  * 

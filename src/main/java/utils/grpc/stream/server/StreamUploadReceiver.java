@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.ByteString;
 
+import io.grpc.stub.StreamObserver;
+
 import utils.UnitUtils;
 import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
@@ -20,7 +22,6 @@ import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
 import utils.io.SuppliableInputStream;
 
-import io.grpc.stub.StreamObserver;
 import proto.stream.DownMessage;
 import proto.stream.UpMessage;
 
@@ -119,7 +120,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 				m_streamConsumer.start();
 				
 				m_state = State.UPLOADING;
-				m_guard.signalAllInGuard();
+				m_guard.signalAll();
 			}
 		});
 	}
@@ -154,7 +155,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 			m_channel.onCompleted();
 			
 			m_state = State.CANCELLED;
-			m_guard.signalAllInGuard();
+			m_guard.signalAll();
 			s_logger.info("CANCELLED by the stream consumer");
 			
 			m_streamConsumer.cancel(true);
@@ -171,18 +172,18 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 		// 클라이언트측에서 모든 데이터를 upload시킨 경우
 		s_logger.debug("received: EOS");
 
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.UPLOADING ) {
 				m_stream.endOfSupply();
 				
 				m_state = State.UPLOAD_FINISHED;
-				m_guard.signalAllInGuard();
+				m_guard.signalAll();
 			}
 		});
 	}
 	
 	private void handleRemoteException(Throwable cause) {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.UPLOADING || m_state == State.UPLOAD_FINISHED ) {
 				// 클라이언트측에서 모든 데이터를 upload시킨 경우
 				if ( cause instanceof CancellationException ) {
@@ -205,7 +206,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 	}
 	
 	private void onConsumerFinished(Result<ByteString> result) {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.COMPLETED || m_state == State.CANCELLED || m_state == State.FAILED ) {
 				return;	// skip
 			}

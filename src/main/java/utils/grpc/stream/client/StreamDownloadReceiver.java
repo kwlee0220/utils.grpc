@@ -16,7 +16,6 @@ import io.grpc.stub.StreamObserver;
 import utils.Utilities;
 import utils.async.EventDrivenExecution;
 import utils.async.Guard;
-import utils.async.GuardedRunnable;
 import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
 import utils.io.SuppliableInputStream;
@@ -70,35 +69,35 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	public void start(StreamObserver<UpMessage> channel) throws Throwable {
 		Utilities.checkNotNullArgument(channel, "upward channel");
 		
-		GuardedRunnable.from(m_guard, () -> {
+		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {
 				m_channel = channel;
 				m_state = State.DOWNLOADING;
-				m_guard.signalAllInGuard();
+				m_guard.signalAll();
 				notifyStarted();
 			}
 			else {
 				throw new IllegalStateException("already started: state=" + m_state);
 			}
-		}).run();
+		});
 	}
 
 	public void start(ByteString req, StreamObserver<UpMessage> channel) {
 		Utilities.checkNotNullArgument(req, "download initiation message");
 		Utilities.checkNotNullArgument(channel, "out-going channel");
 		
-		GuardedRunnable.from(m_guard, () -> {
+		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {
 				m_channel = channel;
 				m_channel.onNext(UpMessage.newBuilder().setHeader(req).build());
 				m_state = State.DOWNLOADING;
-				m_guard.signalAllInGuard();
+				m_guard.signalAll();
 				notifyStarted();
 			}
 			else {
 				throw new IllegalStateException("already started: state=" + m_state);
 			}
-		}).run();
+		});
 	}
 
 	@Override
@@ -143,7 +142,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 			m_stream.supply(block.asReadOnlyByteBuffer());
 		}
 		catch ( StreamClosedException e ) {
-			m_guard.runAndSignalAll(() -> {
+			m_guard.run(() -> {
 				if ( m_state == State.DOWNLOADING ) {
 					m_channel.onNext(UpMessage.newBuilder()
 												.setError(PBUtils.ERROR(Code.CANCELLED, "downloader has closed the stream"))
@@ -157,7 +156,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 			});
 		}
 		catch ( InterruptedException e ) {
-			m_guard.runAndSignalAll(() -> {
+			m_guard.run(() -> {
 				if ( m_state == State.DOWNLOADING ) {
 					ErrorProto error = PBUtils.ERROR(Code.INTERNAL, "downloader worker was interrupted");
 					m_channel.onNext(UpMessage.newBuilder().setError(error).build());
@@ -172,7 +171,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	}
 	
 	private void onEosReceived() {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.DOWNLOADING ) {
 				m_stream.endOfSupply();
 				
@@ -189,7 +188,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	}
 	
 	private void onRemoteException(Throwable cause) {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.DOWNLOADING || m_state == State.NOT_STARTED ) {
 				s_logger.warn("received ERROR: " + cause);
 				if ( !(cause instanceof IOException) ) {

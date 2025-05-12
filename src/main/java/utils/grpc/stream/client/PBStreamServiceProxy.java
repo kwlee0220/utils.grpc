@@ -2,21 +2,22 @@ package utils.grpc.stream.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Int64Value;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+
+import utils.Throwables;
+import utils.grpc.PBUtils;
+import utils.grpc.stream.UpMessageChannel;
+
 import proto.stream.MultiChannelUpMessage;
 import proto.stream.StreamServiceGrpc;
 import proto.stream.StreamServiceGrpc.StreamServiceStub;
 import proto.stream.UpMessage;
 import proto.stream.UploadServerCancelTest;
-import utils.Throwables;
-import utils.grpc.PBUtils;
-import utils.grpc.stream.UpMessageChannel;
 
 /**
  * 

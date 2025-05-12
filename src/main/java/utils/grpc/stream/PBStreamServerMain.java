@@ -3,11 +3,11 @@ package utils.grpc.stream;
 import java.io.IOException;
 import java.util.logging.LogManager;
 
-import utils.NetUtils;
-import utils.grpc.stream.server.PBStreamServiceServant;
-
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+
+import utils.NetUtils;
+import utils.grpc.stream.server.PBStreamServiceServant;
 
 /**
  * 

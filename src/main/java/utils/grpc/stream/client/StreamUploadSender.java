@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
-import proto.ErrorProto.Code;
-import proto.stream.DownMessage;
-import proto.stream.UpMessage;
+
 import utils.Throwables;
 import utils.UnitUtils;
 import utils.Utilities;
@@ -23,6 +21,10 @@ import utils.async.AbstractThreadedExecution;
 import utils.async.Guard;
 import utils.grpc.PBUtils;
 import utils.io.LimitedInputStream;
+
+import proto.ErrorProto.Code;
+import proto.stream.DownMessage;
+import proto.stream.UpMessage;
 
 /**
  * 
@@ -73,14 +75,14 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 	protected ByteString executeWork() throws InterruptedException, CancellationException, Exception {
 		Utilities.checkState(m_channel != null, "Upload stream channel has not been set");
 
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {
 				s_logger.trace("send HEADER: {}", m_header);
 				UpMessage req = UpMessage.newBuilder().setHeader(m_header).build();
 				m_channel.onNext(req);
 				
 				m_state = State.UPLOADING;
-				m_guard.signalAllInGuard();
+				m_guard.signalAll();
 			}
 		});
 		
@@ -103,7 +105,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 						m_channel.onNext(eos);
 						
 						m_state = State.END_OF_STREAM;
-						m_guard.signalAllInGuard();
+						m_guard.signalAll();
 						break;
 					}
 					else {
@@ -124,7 +126,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 			Throwable cause = Throwables.unwrapThrowable(e);
 			s_logger.info("local failure: " + cause);
 			
-			m_guard.runAndSignalAll(() -> {
+			m_guard.run(() -> {
 				if ( m_state == State.UPLOADING ) {
 					m_channel.onNext(UpMessage.newBuilder().setError(PBUtils.ERROR(cause)).build());
 					m_channel.onCompleted();
@@ -178,7 +180,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 				// peer로부터 upload 결과가 도착한 경우.
 				ByteString result = resp.getResult();
 				s_logger.trace("received RESULT: {}", result);
-				m_guard.runAndSignalAll(() -> m_result = result);
+				m_guard.run(() -> m_result = result);
 				break;
 			case OFFSET:
 				m_tail = resp.getOffset();
@@ -208,7 +210,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 	}
 	
 	private void handleRemoteException(Throwable cause) {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.CANCELLED || m_state == State.FAILED || m_result != null ) {
 				return;
 			}
@@ -231,7 +233,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 		Date due = new Date(System.currentTimeMillis() + DEFAULT_CLOSE_TIMEOUT);
 		try {
 			while ( m_result == null && !(m_state == State.CANCELLED || m_state == State.FAILED) ) {
-				if ( !m_guard.awaitUntilInGuard(due) ) {
+				if ( !m_guard.awaitSignal(due) ) {
 					throw new TimeoutException();
 				}
 			}
@@ -244,7 +246,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 			m_cause = new CancellationException();
 			
 			m_state = State.CANCELLED;
-			m_guard.signalAllInGuard();
+			m_guard.signalAll();
 		}
 		catch ( Exception e ) {
 			m_channel.onNext(UpMessage.newBuilder().setError(PBUtils.ERROR(e)).build());
@@ -252,7 +254,7 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 			m_cause = e;
 			
 			m_state = State.FAILED;
-			m_guard.signalAllInGuard();
+			m_guard.signalAll();
 		}
 	}
 }

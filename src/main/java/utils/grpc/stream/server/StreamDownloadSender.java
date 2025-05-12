@@ -15,8 +15,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
-import proto.stream.DownMessage;
-import proto.stream.UpMessage;
+
 import utils.Throwables;
 import utils.UnitUtils;
 import utils.Utilities;
@@ -24,6 +23,9 @@ import utils.async.Guard;
 import utils.grpc.PBUtils;
 import utils.io.IOUtils;
 import utils.io.LimitedInputStream;
+
+import proto.stream.DownMessage;
+import proto.stream.UpMessage;
 
 /**
  * 
@@ -96,7 +98,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 			m_startLatch.countDown();
 			m_stream = stream;
 			m_state = State.DOWNLOADING;
-			m_guard.signalAllInGuard();
+			m_guard.signalAll();
 		}
 		finally {
 			m_guard.unlock();
@@ -153,7 +155,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 						m_channel.onCompleted();
 						
 						m_state = State.COMPLETED;
-						m_guard.signalAllInGuard();
+						m_guard.signalAll();
 						break;
 					}
 					else {
@@ -256,7 +258,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 	}
 	
 	private void runIfDownloading(Runnable action) {
-		m_guard.runAndSignalAll(() -> {
+		m_guard.run(() -> {
 			if ( m_state == State.DOWNLOADING || m_state == State.WAIT_STREAM ) {
 				action.run();
 			}
