@@ -1,6 +1,5 @@
 plugins {
 	id 'java-library'
-	id 'eclipse'
 	id 'com.google.protobuf' version '0.9.4'
 }
 
@@ -75,53 +74,4 @@ dependencies {
 	testImplementation "junit:junit:${junit_version}"
 	testImplementation "org.mockito:mockito-core:${mockito_version}"
 	testImplementation "org.hamcrest:hamcrest-all:${hamcrest_version}"
-}
-
-task sourceJar(type: Jar) {
-	from sourceSets.main.allSource
-}
-task javadocJar(type: Jar) {
-	from javadoc.destinationDir
-}
-
-artifacts {
-	archives sourceJar
-	archives javadocJar
-}
-
-eclipse {
-	classpath {
-		file {
-			withXml {
-				def node = it.asNode()
-				node.appendNode('classpathentry', [kind: 'output', path: 'build/classes'])
-			}
-			
-			whenMerged { cp ->
-				Map entryByPath = cp.entries.groupBy { entry -> entry.path }
-				entryByPath.each { key, values ->
-					if ( values.size() > 1 ) {
-            			def entry = values.first()
-            			if ( entry.kind == 'src' ) {
-            				entry.includes = []
-            				entry.excludes = []
-            			}
-            			int index = cp.entries.indexOf entry
-            			cp.entries.removeAll values
-            			cp.entries.add index, entry
-					}
-				}
-				cp.entries.each { entry ->
-					if ( entry.kind == 'src' && entry.hasProperty('output') ) {
-						if ( entry.path.contains('/test/') ) {
-							entry.output = 'build/test_classes'
-						}
-						else {
-							entry.output = 'build/classes'
-						}
-					}
-				}
-			}
-		}
-	}
 }
