@@ -7,8 +7,8 @@ group = 'etri'
 version = '24.01.12'
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_11
-	targetCompatibility = JavaVersion.VERSION_11
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 [compileJava,compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -74,4 +74,9 @@ dependencies {
 	testImplementation "junit:junit:${junit_version}"
 	testImplementation "org.mockito:mockito-core:${mockito_version}"
 	testImplementation "org.hamcrest:hamcrest-all:${hamcrest_version}"
+}
+
+tasks.processResources {
+	exclude("**/base.proto")
+	exclude("**/stream.proto")
 }
