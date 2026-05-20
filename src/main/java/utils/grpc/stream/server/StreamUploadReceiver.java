@@ -13,10 +13,10 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
+import utils.Preconditions;
 import utils.UnitUtils;
-import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
-import utils.async.Guard;
+import utils.thread.Guard;
 import utils.func.Result;
 import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
@@ -60,7 +60,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 	abstract protected ByteString consumeStream(ByteString req, InputStream is) throws Exception;
 	
 	public StreamUploadReceiver(StreamObserver<DownMessage> channel) {
-		Utilities.checkNotNullArgument(channel);
+		Preconditions.checkNotNullArgument(channel, "channel is null");
 		
 		m_stream = SuppliableInputStream.create();
 		m_channel = channel;

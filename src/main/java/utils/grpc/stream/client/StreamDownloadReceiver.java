@@ -13,9 +13,9 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
-import utils.Utilities;
+import utils.Preconditions;
 import utils.async.EventDrivenExecution;
-import utils.async.Guard;
+import utils.thread.Guard;
 import utils.grpc.PBUtils;
 import utils.io.StreamClosedException;
 import utils.io.SuppliableInputStream;
@@ -53,7 +53,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	@GuardedBy("m_guard") private State m_state = State.NOT_STARTED;
 	
 	public StreamDownloadReceiver(int nchunks) {
-		Utilities.checkArgument(nchunks >= 1, "invalid buffer size: " + nchunks);
+		Preconditions.checkArgument(nchunks >= 1, "invalid buffer size: " + nchunks);
 		
 		m_stream = SuppliableInputStream.create(nchunks);
 	}
@@ -67,7 +67,7 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	}
 
 	public void start(StreamObserver<UpMessage> channel) throws Throwable {
-		Utilities.checkNotNullArgument(channel, "upward channel");
+		Preconditions.checkNotNullArgument(channel, "upward channel");
 		
 		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {
@@ -83,8 +83,8 @@ public class StreamDownloadReceiver	extends EventDrivenExecution<Void>
 	}
 
 	public void start(ByteString req, StreamObserver<UpMessage> channel) {
-		Utilities.checkNotNullArgument(req, "download initiation message");
-		Utilities.checkNotNullArgument(channel, "out-going channel");
+		Preconditions.checkNotNullArgument(req, "download initiation message");
+		Preconditions.checkNotNullArgument(channel, "out-going channel");
 		
 		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {

@@ -14,11 +14,11 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
+import utils.Preconditions;
 import utils.Throwables;
 import utils.UnitUtils;
-import utils.Utilities;
 import utils.async.AbstractThreadedExecution;
-import utils.async.Guard;
+import utils.thread.Guard;
 import utils.grpc.PBUtils;
 import utils.io.LimitedInputStream;
 
@@ -58,22 +58,22 @@ public class StreamUploadSender extends AbstractThreadedExecution<ByteString>
 	}
 	
 	public StreamUploadSender(ByteString header, InputStream stream) {
-		Utilities.checkNotNullArgument(header, "upload request header");
-		Utilities.checkNotNullArgument(stream, "Stream to upload");
+		Preconditions.checkNotNullArgument(header, "upload request header");
+		Preconditions.checkNotNullArgument(stream, "Stream to upload");
 		
 		m_header = header;
 		m_stream = stream;
 	}
 	
 	public void setChannel(StreamObserver<UpMessage> channel) {
-		Utilities.checkNotNullArgument(channel, "Upload stream channel");
+		Preconditions.checkNotNullArgument(channel, "Upload stream channel");
 
 		m_channel = channel;
 	}
 
 	@Override
 	protected ByteString executeWork() throws InterruptedException, CancellationException, Exception {
-		Utilities.checkState(m_channel != null, "Upload stream channel has not been set");
+		Preconditions.checkState(m_channel != null, "Upload stream channel has not been set");
 
 		m_guard.run(() -> {
 			if ( m_state == State.NOT_STARTED ) {

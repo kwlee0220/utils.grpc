@@ -11,15 +11,14 @@ import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
+import utils.Preconditions;
 import utils.Throwables;
 import utils.UnitUtils;
-import utils.Utilities;
-import utils.async.Guard;
+import utils.thread.Guard;
 import utils.grpc.PBUtils;
 import utils.io.IOUtils;
 import utils.io.LimitedInputStream;
@@ -71,13 +70,13 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 	 * @param channel	Download시킬 데이터를 전송할 출력 채널.
 	 */
 	public StreamDownloadSender(StreamObserver<DownMessage> channel) {
-		Utilities.checkNotNullArgument(channel, "Download message channel");
+		Preconditions.checkNotNullArgument(channel, "Download message channel");
 		
 		m_channel = channel;
 	}
 	
 	public StreamDownloadSender getStreamTimeout(long timeout) {
-		Utilities.checkArgument(timeout > 0, "invalid get-stream-timeout: " + timeout);
+		Preconditions.checkArgument(timeout > 0, "invalid get-stream-timeout: " + timeout);
 		
 		m_streamAcquireTimeout = timeout;
 		return this;
@@ -87,7 +86,7 @@ public class StreamDownloadSender implements Runnable, StreamObserver<UpMessage>
 	// 로컬에서 stream 을 생성하여 설정하는 경우.
 	//
 	void setInputStream(InputStream stream) {
-		Utilities.checkNotNullArgument(stream, "Download stream");
+		Preconditions.checkNotNullArgument(stream, "Download stream");
 		
 		m_guard.lock();
 		try {
