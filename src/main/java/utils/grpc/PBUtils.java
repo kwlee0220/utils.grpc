@@ -14,6 +14,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import utils.CSV;
+import utils.KeyValue;
 import utils.Throwables;
 import utils.func.CheckedRunnable;
 
@@ -870,7 +871,7 @@ public class PBUtils {
 	
 	public static Map<String,Object> fromProto(KeyValueMapProto kvmProto) {
 		return FStream.from(kvmProto.getKeyValueList())
-					.mapToKeyValue(KeyValueProto::getKey, KeyValueProto::getValue)
+					.mapToKeyValue(kv -> KeyValue.of(kv.getKey(), kv.getValue()))
 					.mapValue(vproto -> fromProto(vproto)._2)
 					.toMap();
 	}
