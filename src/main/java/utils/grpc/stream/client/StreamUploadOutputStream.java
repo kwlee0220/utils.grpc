@@ -31,7 +31,7 @@ import proto.stream.UpMessage;
  */
 public class StreamUploadOutputStream extends OutputStream implements StreamObserver<DownMessage> {
 	private static final Logger s_logger = LoggerFactory.getLogger(StreamUploadOutputStream.class);
-	private static final long DEFAULT_CLOSE_TIMEOUT = UnitUtils.parseDurationMillis("30s");		// 30s
+	private static final long DEFAULT_CLOSE_TIMEOUT = UnitUtils.parseDuration("30s").toMillis();		// 30s
 
 	private final ByteString m_header;
 	private StreamObserver<UpMessage> m_channel;

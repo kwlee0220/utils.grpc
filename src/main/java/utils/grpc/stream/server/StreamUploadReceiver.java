@@ -227,7 +227,7 @@ public abstract class StreamUploadReceiver implements StreamObserver<UpMessage> 
 				m_channel.onCompleted();
 				m_state = State.FAILED;
 			}
-			else if ( result.isNone() ) {
+			else if ( result.isCancelled() ) {
 				s_logger.debug("stream consumer cancelled the operation");
 				
 				m_channel.onNext(DownMessage.newBuilder()
