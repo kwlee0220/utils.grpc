@@ -114,7 +114,10 @@ public class PBStreamServiceServant extends StreamServiceImplBase {
 
 				s_logger.debug("[sample] uploading: path={}...", path);
 				
-				long count = IOUtils.toFile(is, file, BUFFER_SIZE);
+				long count;
+				try ( InputStream input = is ) {
+					count = IOUtils.write(file, input);
+				}
 				System.out.println("length=" + count);
 				return PBUtils.INT64(count).toByteString();
 			}

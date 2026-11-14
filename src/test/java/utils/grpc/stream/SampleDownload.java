@@ -55,7 +55,7 @@ public class SampleDownload {
 	
 	private static long fullCopy(PBStreamClient client, String path) throws IOException {
 		try ( InputStream is = client.download(path) ) {
-			return IOUtils.toFile(is, new File(OUTPUT));
+			return IOUtils.write(new File(OUTPUT), is);
 		}
 		finally {
 			new File(OUTPUT).delete();
@@ -66,14 +66,14 @@ public class SampleDownload {
 		try ( InputStream is = client.download(path) ) {
 			byte[] buf = new byte[127897];
 			for ( int i = 0; i < count; ++i ) {
-				IOUtils.readAtBest(is, buf);
+				IOUtils.readUpTo(is, buf);
 			}
 		}
 	}
 
 	private static void serverCancel(PBStreamClient client, String path, long size) throws IOException {
 		try ( InputStream is = client.download(path + "/" + size) ) {
-			IOUtils.toFile(is, new File(OUTPUT));
+			IOUtils.write(new File(OUTPUT), is);
 		}
 		catch ( Exception e ) { }
 		new File(OUTPUT).delete();

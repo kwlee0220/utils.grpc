@@ -32,7 +32,7 @@ public class SampleUpload2 {
 		long nsent;
 		StreamUploadOutputStream suos = client.openUploadOutputStream(OUTPUT); 
 		try ( InputStream is = new FileInputStream(new File(INPUT)) ) {
-			nsent = IOUtils.transfer(is, suos, 256 * 1024);
+			nsent = IOUtils.copy(is, suos);
 		}
 		suos.close();
 			
